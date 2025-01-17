@@ -1,0 +1,5 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/users/page": "app/users/page.js",
+  "/users/add/page": "app/users/add/page.js"
+}
