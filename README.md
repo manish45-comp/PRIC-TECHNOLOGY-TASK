@@ -1,36 +1,200 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Google Cloud Functions API with Next.js Frontend
 
-First, run the development server:
+## Overview
+
+This project integrates a Google Cloud Functions API with a Next.js frontend for a CRUD-based user dashboard. The frontend is styled with Tailwind CSS, uses TypeScript, and is containerized with Docker for seamless deployment.
+
+
+
+## 1. Google Cloud Functions API Setup
+
+Prerequisites
+Google Cloud Account.
+Node.js installed.
+Firebase CLI installed.
+
+## Steps to Set Up
+Create a Firebase Project
+
+Go to Firebase Console.
+
+Click "Add Project" and follow the instructions to create a new project.
+
+Enable Firestore in Native Mode in the "Build > Firestore Database" section.
+
+## Initialize Firebase in Your Project
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+    firebase login
+    firebase init
+```
+Choose Functions and link it to your Firebase project.
+
+Select TypeScript for the functions language.
+
+Use the default settings for ESLint and dependencies.
+
+## Write Your API Functions
+
+Example CRUD functions (e.g., createUser, getUser, updateUser, deleteUser) can be placed in functions/src/index.ts.
+
+## Deploy the Functions 
+Deploy your API to Google Cloud:
+
+```bash
+firebase deploy --only functions
+```
+## Testing Locally
+ You can test the functions locally using:
+
+ ```bash
+firebase emulators:start
+```
+## 2. Next.js Application Setup
+
+### Initialize the Next.js Project
+
+```bash
+npx create-next-app@latest my-nextjs-app --typescript --tailwind
+cd my-nextjs-app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Install Dependencies
+```bash
+npm install axios
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Configure Tailwind CSS
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Tailwind is pre-installed if you chose the Tailwind option during initialization.
 
-## Learn More
+Update tailwind.config.js for custom styling if needed.
+### Set Up API Integration
 
-To learn more about Next.js, take a look at the following resources:
+Create a services/api.ts file to define Axios methods for interacting with the Google Cloud Functions API:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+import axios from "axios";
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+const API_BASE_URL = "https://<your-cloud-functions-url>";
+export const api = axios.create({ baseURL: API_BASE_URL });
 
-## Deploy on Vercel
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Implement CRUD Operations
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Use hooks or context for fetching and managing data. Example
+
+```bash
+import { api } from "../services/api";
+
+export async function fetchUsers() {
+  const response = await api.get("/users");
+  return response.data;
+}
+```
+
+## 3. Docker Setup for Next.js
+### Steps to Containerize
+### Create a Dockerfile 
+Add a Dockerfile in the root of your Next.js project:
+
+```bash
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+### Build the Docker Image
+
+```bash 
+docker build -t nextjs-frontend .
+```
+
+### Run the Docker Container
+
+```bash
+docker run -p 3000:3000 nextjs-frontend
+```
+
+## 4. CRUD Operations Guide
+
+## Endpoints for Google Cloud Functions
+
+### Create User (POST)
+
+```bash
+URL: /createUser
+```
+Body: 
+```bash 
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "age": 30,
+  "city": "New York",
+  "country": "USA"
+}
+```
+
+### Read User (GET)
+
+```bash
+URL: /getUsers
+```
+
+### Update User (PUT)
+```bash
+URL: /updateUser?id=<USER_ID>
+```
+Body: 
+```bash 
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "age": 30,
+  "city": "New York",
+  "country": "USA"
+}
+```
+
+### Delete User (DELETE)
+```bash
+URL: /deleteUser?id=<USER_ID>
+```
+
+## 5. Running Locally
+
+Start the Backend
+```bash
+firebase emulators:start
+
+```
+
+Start the Frontend
+```bash
+npm run dev
+
+```
+
+Open http://localhost:3000 in your browser.
+
+
+## 6. Deploying the Frontend with Docker
+### Build the Docker Image
+```bash
+docker build -t nextjs-frontend .
+```
+### Run the Container
+```bash
+docker run -p 3000:3000 nextjs-frontend
+```
+Access the app at http://localhost:3000.
